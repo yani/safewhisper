@@ -1,0 +1,22 @@
+# Environment variables file
+.env
+
+# Note count file
+notecount
+
+# Cache
+cache/
+
+# Composer & NPM
+vendor/
+node_modules/
+
+# IDE
+.vscode/*
+.settings
+nbproject/private/
+nbbuild/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+.nb-gradle/

@@ -1,0 +1,18 @@
+{
+    "name": "yani/safewhisper",
+    "type": "project",
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Yani",
+            "email": "yani@xenokore.com"
+        }
+    ],
+    "require": {
+        "php": "^7.3 || ^8.0",
+        "vlucas/phpdotenv": "^5.5",
+        "twig/twig": "^3.4",
+        "predis/predis": "^2.0",
+        "xenokore/utility": "^1.1"
+    }
+}

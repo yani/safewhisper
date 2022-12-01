@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>SafeWhisper{% if block('title') is not empty %} - {% block title %}{% endblock %}{% endif %}</title>
+
+        <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="/css/button-loader.css" />
+        <link rel="stylesheet" href="/css/main.css" />
+
+        <script>
+            const store = {
+                pass_length: {{ note_pass_length }},
+                note_id_length: {{ note_id_length }}
+            };
+        </script>
+    </head>
+
+    <body>
+
+        <div class="container">
+
+            <div class="header">
+                <h1>
+                    <a href="/">SafeWhisper</a>
+                </h1>
+                <div class="nav">
+                    <a href="/">
+                        <button class="btn btn-primary" onClick="this.disabled = true;">New note</button>
+                    </a>
+                </div>
+            </div>
+
+            <div class="page">
+                {% block page %}{% endblock %}
+            </div>
+
+            <div class="footer">
+                <a href="/about">About</a>
+                 -
+                {# <a href="/about" target="_blank"> #}
+                    {# Github #}
+                {# </a> #}
+                 {# - #}
+                {# <a href="https://www.paypal.com/donate/?business=VF8SLYE5QTQ9Y&no_recurring=0&item_name=I%27m+a+developer+looking+to+create+and+maintain+free+open-source+software+for+a+living.+&currency_code=EUR" target="_blank">Donate</a> #}
+                {# - #}
+                <span class="text-muted">v{{ sw_version }}</span>
+            </div>
+
+        </div>
+
+        <script src="/node_modules/jquery/dist/jquery.min.js" defer></script>
+        <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js" defer></script>
+        <script src="/node_modules/clipboard/dist/clipboard.js" defer></script>
+        <script src="/node_modules/crypto-js/crypto-js.js" defer></script>
+        <script src="/js/buttonLoader.jquery.js" defer></script>
+
+        {% block end_js %}{% endblock %}
+
+    </body>
+
+</html>

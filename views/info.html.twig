@@ -1,0 +1,40 @@
+{% extends '_base.html.twig' %}
+
+{% block title %}Info{% endblock %}
+
+{% block page %}
+
+<p>Information about this SafeWhisper instance.</p>
+
+<h3>Stats</h3>
+
+    <table class="table table-striped table-dark">
+        <tr>
+            <td style="width:50%;">Notes in memory</td>
+            <td><span class="text-info">{{ active_notes }}</span></td>
+        </tr>
+        <tr>
+            <td>Total notes created</td>
+            <td><span class="text-info">{{ total_note_count }}</span></td>
+        </tr>
+    </table>
+
+
+<h3>Config</h3>
+
+    <table class="table table-striped table-dark">
+        <tr>
+            <td style="width:50%;">Note ID length</td>
+            <td><span class="text-info">{{ note_id_length }}</span></td>
+        </tr>
+        <tr>
+            <td>Passkey length</td>
+            <td><span class="text-info">{{ note_passkey_length }}</span></td>
+        </tr>
+        <tr>
+            <td>TTL</td>
+            <td><span class="text-info">{{ ttl }}</span> seconds</td>
+        </tr>
+    </table>
+
+{% endblock %}

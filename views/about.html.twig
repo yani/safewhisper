@@ -1,0 +1,31 @@
+{% extends '_base.html.twig' %}
+
+{% block title %}About{% endblock %}
+
+{% block page %}
+
+<h2>About</h2>
+
+<p>SafeWhisper is a self-hosted microservice for sharing encrypted notes.</p>
+
+<p>
+    Notes are encrypted with <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES</a> using the <a href="https://www.npmjs.com/package/crypto-js" target="_blank">crypto-js</a> library.
+    Encryption happens client-side (in the browser of the user) and the server only receives the encrypted note.
+    The decryption key is added to the generated URL as a <a href="https://www.w3.org/DesignIssues/Fragment.html" target="_blank">fragment identifier</a> and is not shared with the server.
+</p>
+<p>
+    The server uses a <a href="https://redis.com/" target="_blank">Redis data store</a> for storing the encrypted notes instead of a traditional database or filesystem.
+    This means that the encrypted notes are stored in RAM and never touch the physical harddrive.
+    This also means that if the server loses power or is manually rebooted, all notes are lost.
+</p>
+<p>
+    The only data that is stored is the encrypted note and the note identifier.
+    Identifiable data such as IP addresses are not stored.
+    SafeWhisper is also designed to not leak any information to the default <a href="https://nginx.org/en/docs/http/ngx_http_log_module.html" target="_blank">access_log</a>.
+</p>
+
+<div class="alert alert-info">
+SafeWhisper is currently in beta test. The code will be made public soon.
+</div>
+
+{% endblock %}

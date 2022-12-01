@@ -1,0 +1,31 @@
+{% extends '_base.html.twig' %}
+
+{% block page %}
+
+    <div id="createNotePage">
+        <div class="grow-wrap">
+            <textarea name="text" id="note"
+                onInput="this.parentNode.dataset.replicatedValue = this.value;"
+                placeholder="Write your note..." value="" rows=10 autofocus></textarea>
+        </div>
+        <div class="note-buttons">
+            <button class="btn btn-success" id="createNote" disabled>Create note</button>
+        </div>
+    </div>
+
+    <div id="noteCreatedPage" style="display:none;">
+        <p>Your note <code id="noteID"></code> has been created:</p>
+        <input id="noteURL" type="text" class="form-control" value="" readonly />
+        <div class="note-buttons">
+            <button class="btn btn-success" id="copyNoteURL" data-clipboard-target="#noteURL">Copy</button>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block end_js %}
+    <script src="/js/create-note.js" defer></script>
+{% endblock %}
+
+

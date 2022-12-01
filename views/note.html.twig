@@ -1,0 +1,40 @@
+{% extends '_base.html.twig' %}
+
+
+{% block title %}Note{% endblock %}
+
+
+{% block page %}
+
+    <div id="noteLoading" class="text-center note-loading">
+        <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+    </div>
+
+    <p id="noteInvalid" style="display:none;">The requested note URL is invalid</p>
+
+    <p id="noteFail" style="display:none;">
+        The note <code class="note-id-placeholder"></code> has already been read.
+        <br />
+        <br />
+        <i class="text-muted">Or was removed from the server because it was too old.</i>
+    </p>
+
+    <p id="noteReadConfirm" style="display:none;">
+        Do you want to read and destroy the note <code class="note-id-placeholder"></code>?
+        <br />
+        <br />
+        <button id="noteRead" class="btn btn-success">Show note</button>
+    </p>
+
+    <div id="note" style="display:none;">
+        <p>Note <code class="note-id-placeholder"></code>:</p>
+        <pre class="note-contents" id="noteContents"></pre>
+        <p><i class="text-muted">The note has been destroyed.</i></p>
+    </div>
+
+{% endblock %}
+
+
+{% block end_js %}
+    <script src="/js/read-note.js" defer></script>
+{% endblock %}
