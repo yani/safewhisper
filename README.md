@@ -35,4 +35,4 @@ The 3rd party libraries that have been used can be found in [docs/libs.md](/docs
 
 ## License
 
-[GPL-3.0](/LICENSE).
+[GPL-3.0](/LICENSE)
