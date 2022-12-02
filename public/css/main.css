@@ -114,6 +114,7 @@ h3 {
     font-family: 'Consolas', 'Monaco', 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', 'monospace';
     font-size: 14px;
     white-space: pre-wrap;
+    word-break: break-word;
 }
 
 /* https://css-tricks.com/the-cleanest-trick-for-autogrowing-textareas/ */
