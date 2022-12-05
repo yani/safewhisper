@@ -1,6 +1,6 @@
 
-SafeWhisper 3rd party libraries
-===============================
+SafeWhisper: 3rd party libraries
+================================
 
 ## PHP
 

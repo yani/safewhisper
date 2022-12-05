@@ -1,5 +1,5 @@
-SafeWhisper Native Install
-==========================
+SafeWhisper: Native installation
+================================
 
 
 ## Requirements:
