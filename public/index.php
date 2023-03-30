@@ -30,8 +30,14 @@ $twig->addGlobal('note_id_length', \intval($_ENV['APP_NOTE_ID_LENGTH']));
 $twig->addGlobal('note_pass_length', \intval($_ENV['APP_NOTE_PASS_LENGTH']));
 $twig->addGlobal('sw_version', \file_get_contents(__DIR__ . '/../version'));
 
+// Create Redis client options
+$redis_options = [];
+if(!empty($_ENV['APP_REDIS_PREFIX'])){
+    $redis_options['prefix'] = (string) $_ENV['APP_REDIS_PREFIX'];
+}
+
 // Connect to Redis cache
-$redis = new Predis\Client($_ENV['APP_REDIS_URI']);
+$redis = new Predis\Client($_ENV['APP_REDIS_URI'], $redis_options);
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //// ROUTING /////////////////////////////////////////////////////////////////////////////
