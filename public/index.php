@@ -67,8 +67,19 @@ if($route === '/note'){
 
 // Info page
 if($route === '/info'){
+
+    // Get 'notes in memory'
+    $active_note_count = 0;
+    if(empty($_ENV['APP_REDIS_PREFIX'])){
+        $active_note_count = $redis->dbsize(); // inaccurate, returns number of ALL keys
+    } else {
+        foreach (new \Predis\Collection\Iterator\Keyspace($redis, $_ENV['APP_REDIS_PREFIX'] . '*') as $key) {
+            $active_note_count++;
+        }
+    }
+
     echo $twig->render('info.html.twig', [
-        'active_notes'               => $redis->dbsize(),
+        'active_note_count'          => $active_note_count,
         'total_note_count'           => \intval(\file_get_contents($note_count_filepath)),
         'note_id_length'             => (int) $_ENV['APP_NOTE_ID_LENGTH'],
         'note_passkey_length'        => (int) $_ENV['APP_NOTE_PASS_LENGTH'],
