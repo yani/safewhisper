@@ -1,8 +1,14 @@
 <?php
 
+use Slim\Factory\AppFactory;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+
 use Xenokore\Utility\Helper\JsonHelper;
 use Xenokore\Utility\Helper\FileHelper;
 use Xenokore\Utility\Helper\StringHelper;
+
+use Slim\Exception\HttpNotFoundException;
 
 // Load vendor libraries
 require __DIR__ . '/../vendor/autoload.php';
@@ -16,7 +22,7 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->safeLoad();
 
 // Note count filepath
-$note_count_filepath = __DIR__ . '/../notecount';
+define('NOTE_COUNT_FILEPATH', __DIR__ . '/../notecount');
 
 // Get Twig Instance
 $twig_loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../views');
@@ -43,30 +49,34 @@ $redis = new Predis\Client($_ENV['APP_REDIS_URI'], $redis_options);
 //// ROUTING /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
-// Get the route and method
-$route = $_SERVER['REQUEST_URI'];
-$method = $_SERVER['REQUEST_METHOD'];
+$app = AppFactory::create();
 
 // Homepage
-if ($route === '/') {
-    echo $twig->render('create.html.twig');
-    exit;
-}
+$app->get('/', function (Request $request, Response $response) use ($twig) {
+    $response->getBody()->write(
+        $twig->render('create.html.twig')
+    );
+    return $response;
+});
 
 // About page
-if ($route === '/about') {
-    echo $twig->render('about.html.twig');
-    exit;
-}
+$app->get('/about', function (Request $request, Response $response) use ($twig) {
+    $response->getBody()->write(
+        $twig->render('about.html.twig')
+    );
+    return $response;
+});
 
 // Read note page
-if($route === '/note'){
-    echo $twig->render('note.html.twig');
-    exit;
-}
+$app->get('/note', function (Request $request, Response $response) use ($twig) {
+    $response->getBody()->write(
+        $twig->render('note.html.twig')
+    );
+    return $response;
+});
 
 // Info page
-if($route === '/info'){
+$app->get('/info', function (Request $request, Response $response) use ($twig, $redis) {
 
     // Get 'notes in memory'
     $active_note_count = 0;
@@ -80,26 +90,30 @@ if($route === '/info'){
 
     echo $twig->render('info.html.twig', [
         'active_note_count'          => $active_note_count,
-        'total_note_count'           => \intval(\file_get_contents($note_count_filepath)),
+        'total_note_count'           => \intval(\file_get_contents(NOTE_COUNT_FILEPATH)),
         'note_id_length'             => (int) $_ENV['APP_NOTE_ID_LENGTH'],
         'note_passkey_length'        => (int) $_ENV['APP_NOTE_PASS_LENGTH'],
         'ttl'                        => (int) $_ENV['APP_NOTE_TTL'],
     ]);
     exit;
-}
+});
 
 // Create a note
-if($route === '/note/create' && $method === 'POST'){
+$app->post('/note/create', function (Request $request, Response $response) use ($redis) {
 
-    // Define return output
-    \header('Content-Type: application/json');
+    // Output JSON
+    $response = $response->withHeader('Content-Type', 'application/json');
+
+    $post = $request->getParsedBody();
 
     // Validate POST input
-    if(empty($_POST['contents']) || !is_string($_POST['contents'])){
-        echo JsonHelper::encode([
-            'success' => false
-        ]);
-        exit;
+    if(empty($post['contents']) || !is_string($post['contents'])){
+        $response->getBody()->write(
+            JsonHelper::encode([
+                'success' => false
+            ])
+        );
+        return $response;
     }
 
     try {
@@ -111,53 +125,61 @@ if($route === '/note/create' && $method === 'POST'){
         }
 
         // Add note to redis
-        $redis->set($note_id, $_POST['contents'], 'EX', (int) $_ENV['APP_NOTE_TTL']);
+        $redis->set($note_id, $post['contents'], 'EX', (int) $_ENV['APP_NOTE_TTL']);
 
         // Increment note counter
         if($_ENV['APP_TRACK_NOTE_COUNT']){
             try {
-                FileHelper::createIfNotExist($note_count_filepath);
-                $str = \file_get_contents($note_count_filepath);
+                FileHelper::createIfNotExist(NOTE_COUNT_FILEPATH);
+                $str = \file_get_contents(NOTE_COUNT_FILEPATH);
                 $count = \intval($str) + 1;
-                \file_put_contents($note_count_filepath, $count);
+                \file_put_contents(NOTE_COUNT_FILEPATH, $count);
             } catch (\Exception $ex) {
             }
         }
 
         // Send note ID back to client
-        echo JsonHelper::encode([
-            'success' => true,
-            'id' => $note_id
-        ]);
-        exit;
+        $response->getBody()->write(
+            JsonHelper::encode([
+                'success' => true,
+                'id' => $note_id
+            ])
+        );
+        return $response;
 
     } catch (\Exception $ex) {
 
         // Something went wrong
-        echo JsonHelper::encode([
-            'success' => false
-        ]);
-        exit;
+        $response->getBody()->write(
+            JsonHelper::encode([
+                'success' => false
+            ])
+        );
+        return $response;
     }
+});
 
-}
 
 // Get and remove a note
 // > The reason we use a POST request here is so the note id won't be logged in any webserver access logs
-if($route === '/note/read' && $method === 'POST'){
+$app->post('/note/read', function (Request $request, Response $response) use ($redis) {
 
-    // Define return output
-    \header('Content-Type: application/json');
+    // Output JSON
+    $response = $response->withHeader('Content-Type', 'application/json');
+
+    $post = $request->getParsedBody();
 
     // Validate POST input
-    if(empty($_POST['id']) || !is_string($_POST['id'])){
-        echo JsonHelper::encode([
-            'success' => false
-        ]);
-        exit;
+    if(empty($post['id']) || !is_string($post['id'])){
+        $response->getBody()->write(
+            JsonHelper::encode([
+                'success' => false
+            ])
+        );
+        return $response;
     }
 
-    $id = $_POST['id'];
+    $id = $post['id'];
 
     try {
 
@@ -166,43 +188,55 @@ if($route === '/note/read' && $method === 'POST'){
 
         // Note contents not found
         if(!$contents){
-            echo JsonHelper::encode([
-                'success' => false
-            ]);
-            exit;
+            $response->getBody()->write(
+                JsonHelper::encode([
+                    'success' => false
+                ])
+            );
+            return $response;
         }
 
         // Return note contents to client
-        echo JsonHelper::encode([
-            'success' => true,
-            'contents' => $contents
-        ]);
-        exit;
+        $response->getBody()->write(
+            JsonHelper::encode([
+                'success' => true,
+                'contents' => $contents
+            ])
+        );
+        return $response;
 
     } catch (\Exception $ex) {
 
         // Something went wrong
-        echo JsonHelper::encode([
-            'success' => false
-        ]);
-        exit;
+        $response->getBody()->write(
+            JsonHelper::encode([
+                'success' => false
+            ])
+        );
+        return $response;
     }
 
-}
+});
 
 // Serve static `node_modules` files
-if (StringHelper::startsWith($route, '/node_modules/')) {
-    $path = StringHelper::replace($route, [
+// > This should only be used during development!
+$app->get('/node_modules/{path:.+}', function (Request $request, Response $response, $path) use ($twig) {
+    if(is_array($path) && isset($path['path'])){
+        $path = $path['path'];
+    }
+    $file_path_str = '/node_modules/' . StringHelper::replace($path, [
         '../' => '/',
         '//'  => '/'
     ]);
-    $path = \realpath(__DIR__ . '/..' . $path);
-    FileHelper::outputFileToBrowser($path, \basename($path));
+    $file_path = \realpath(__DIR__ . '/..' . $file_path_str);
+    FileHelper::outputFileToBrowser($file_path, \basename($file_path));
     exit;
-}
+});
 
-// 404
-\header('HTTP/1.0 404 Not Found');
-echo '<h1>404 Not Found</h1>';
-echo 'The resource could not be found.';
-exit;
+try {
+    $app->run();
+} catch (HttpNotFoundException $ex) {
+    \header('HTTP/1.0 404 Not Found');
+    echo '<h1>404 Not Found</h1>';
+    echo 'The resource could not be found.';
+}

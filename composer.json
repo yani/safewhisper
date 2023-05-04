@@ -13,6 +13,8 @@
         "vlucas/phpdotenv": "^5.5",
         "twig/twig": "^3.4",
         "predis/predis": "^2.0",
-        "xenokore/utility": "^1.1"
+        "xenokore/utility": "^1.1",
+        "slim/slim": "4.*",
+        "slim/psr7": "^1.6"
     }
 }
