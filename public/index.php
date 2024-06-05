@@ -133,7 +133,7 @@ $app->post('/note/create', function (Request $request, Response $response) use (
                 FileHelper::createIfNotExist(NOTE_COUNT_FILEPATH);
                 $str = \file_get_contents(NOTE_COUNT_FILEPATH);
                 $count = \intval($str) + 1;
-                \file_put_contents(NOTE_COUNT_FILEPATH, $count);
+                \file_put_contents(NOTE_COUNT_FILEPATH, $count, \LOCK_EX);
             } catch (\Exception $ex) {
             }
         }
