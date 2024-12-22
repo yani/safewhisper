@@ -11,25 +11,32 @@ RUN apk update && apk add --no-cache \
     php83-json \
     redis \
     composer \
+    npm \
     supervisor
 
-# Copy the Nginx configuration file
-COPY ./docker/nginx.conf /etc/nginx/nginx.conf
+# Create www-data user and group if they do not exist
+RUN addgroup -S www-data || true && adduser -S -G www-data www-data || true
 
-# Copy the Supervisor configuration file
+# Copy configuration files
+COPY ./docker/nginx.conf /etc/nginx/nginx.conf
+COPY ./docker/php-fpm.conf /etc/php83/php-fpm.d/www.conf
 COPY ./docker/supervisord.conf /etc/supervisord.conf
 
-# Copy safewhisper application files
+# Copy application files
 COPY . /var/www/html
-
-# Set permissions
-RUN chown -R nginx:nginx /var/www/html
 
 # Change working directory to /var/www/html
 WORKDIR /var/www/html
 
-# Run Composer install to install dependencies
+# Ensure .env file exists, if not, copy .env.example
+RUN [ ! -f .env ] && cp .env.example .env || true
+
+# Install dependencies
 RUN composer install --no-dev --optimize-autoloader
+RUN npm install --production
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html
 
 # Expose ports
 EXPOSE 80
